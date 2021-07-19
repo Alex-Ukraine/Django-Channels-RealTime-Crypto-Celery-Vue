@@ -9,7 +9,7 @@ from django.urls import path
 
 from .consumers import WSConsumer
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'setari.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'ccymc.settings')
 
 ws_urlpatterns = [
     path('ws/some_url/', WSConsumer.as_asgi()),

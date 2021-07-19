@@ -1,8 +1,10 @@
 from django.shortcuts import render
-from .tasks import get_joke
+
+from .models import Pair
+
 
 def index(request):
-    # here I can receive jokes even after the page finished loading !!!!! WOW !!!!
-    #url = "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=7&page=1&sparkline=false"
-    #coins = requests.get(url).json()
+    new_pair = request.GET.get('new_pair')
+    if new_pair:
+        Pair.objects.get_or_create(name=new_pair)
     return render(request, "index.html")

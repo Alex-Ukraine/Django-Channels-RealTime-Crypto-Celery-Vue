@@ -1,43 +1,57 @@
 from __future__ import absolute_import, unicode_literals
-import random
+
+import datetime
+import time
+
 from celery.decorators import task
-import json
 import requests
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
-from .models import Coin
+from .models import Coin, Pair
 
 channel_layer = get_channel_layer()
 
-@task(name="get_the_joke")
-def get_joke():
-    url = 'https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=7&page=1&sparkline=false'
-    response = requests.get(url).json()
-    coins = list()
 
-    for co in response:
-        # try:
-        #     obj = Coin.objects.get(name=co["id"])
-        # except Coin.DoesNotExist: # this is for the first time
-        #     obj = Coin(name=co['id'], price=co['current_price'])
-        #     obj.save()
-        obj, created = Coin.objects.get_or_create(name=co["id"])
-        # I got an instance of Coin (obj) and now I want to fill it
-        # with the data I got from API
-        
-        obj.name = co['id']
-        obj.image = co['image']
-        if obj.price > co['current_price']:
-            state = 'fall'
-        elif obj.price == co['current_price']:
-            state = 'same'
+@task(name="get_the_data")
+def get_joke():
+    HEADERS = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+    }
+    part_url = 'https://api.cryptonator.com/api/ticker/'
+    pairs = []
+    for p in Pair.objects.all():
+        pairs.append(p.name)
+    coins = list()
+    for x in pairs:
+        url = part_url+x
+        response = requests.get(url, headers=HEADERS)
+        if response.status_code == 200:
+            response = response.json()
+
+            obj, created = Coin.objects.get_or_create(base=response["ticker"]["base"],
+                                                      target=response["ticker"]["target"],
+                                                      timestamp=response["timestamp"],
+                                                      price=response["ticker"]["price"])
+
+            print(obj, created)
+
+            searched = Coin.objects.filter(base=response["ticker"]["base"], target=response["ticker"]["target"],
+                                           timestamp__gt=(int(datetime.datetime.now().timestamp())-120))
+            avg = obj.price
+            print(searched)
+            if searched.count():
+                sum=0
+                for row in searched:
+                    sum += row.price
+
+                avg = sum/searched.count()
+                print(sum, avg)
+
+            coins.append({'base': obj.base, 'target': obj.target,
+                          'timestamp': time.strftime('%A, %Y-%m-%d %H:%M:%S', time.localtime(obj.timestamp)),
+                          'price': obj.price, 'avg': avg})
         else:
-            state = 'raise'
-        obj.price = co['current_price']
-        obj.save()
-        
-        coins.append({'id': obj.id, 'image': obj.image, 'name': obj.name, 'price': obj.price, 'state': state})       
-    #print(coins)
-    # Channel_layer is an async function.
-    async_to_sync(channel_layer.group_send)('coins', {'type':'send_new_data', 'text':coins})
-    #return joke
+            to_delete = Pair.objects.get(name=x)
+            to_delete.delete()
+
+    async_to_sync(channel_layer.group_send)('coins', {'type': 'send_new_data', 'text': coins})

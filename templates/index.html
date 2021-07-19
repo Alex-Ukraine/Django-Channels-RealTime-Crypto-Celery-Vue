@@ -9,41 +9,55 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
     <script src="https://unpkg.com/vue@next"></script>
     
-    <title>Coins</title>
-    <style>
-        .fall {
-            color:red;
-        }
-        .raise {
-            color: limegreen;
-        }
-    </style>
+    <title>cryptocurrency - monetary currency live data</title>
+
 </head>
 <body>
 
     <div class="container">
         <div class="row">
             <div class="col-8 mx-auto mt-5">
-                <h3 class="mb-5">Crypto currencies</h3>
+                <h3 class="mb-5">Crypto currencies from https://ru.cryptonator.com/api</h3>
+
                 {% verbatim %}
+
                 <div id="app">
+
                 {{ message }}
+
                 <table class="table table-hover">
                 <thead>
-                <tr><th scope="col">Image</th><th scope="col">Name</th><th scope="col">Price</th></tr>
+                <tr>
+                    <th scope="col">base</th>
+                    <th scope="col">target</th>
+                    <th scope="col">timestamp</th>
+                    <th scope="col">price</th>
+                    <th scope="col">avg price(last2min)</th>
+                </tr>
                 </thead>
                 <tbody>
                     
-                <tr v-for="coin in coins" :key="coin.id">
-                    <td class="align-middle"><img :src="coin.image" alt="" class="px-2" width="50"></td>
-                    <td class="align-middle">{{ coin.name }}</td>
-                    <td class="align-middle" :class="{'raise': coin.state === 'raise', 'fall': coin.state === 'fall'}">{{ coin.price }}</td>
+                <tr v-for="coin in coins" :key="coin.base">
+                    <td class="align-middle">{{ coin.base }}</td>
+                    <td class="align-middle">{{ coin.target }}</td>
+                    <td class="align-middle">{{ coin.timestamp }}</td>
+                    <td class="align-middle">{{ coin.price }}</td>
+                    <td class="align-middle">{{ coin.avg }}</td>
                 </tr>
                 
                 </tbody>
             </table>
             </div>
+
             {% endverbatim %}
+                <br>
+                <br>
+                <form action="/">
+                    <p><b>Enter new pair cryptocurrency-monetary currency like btc-usd:</b><br>
+                    <input type="text" placeholder="etc-rub" name="new_pair">
+                    <input type="submit" value="Send">
+                </form>
+
             </div>
         </div>
     </div>
@@ -55,7 +69,7 @@
             const CoinsApp = {
                 data() {
                     return {
-                        message: "Live Data",
+                        message: "Thanx for visit my site with live data",
                         coins: null
                     }
                 },
@@ -64,20 +78,12 @@
                     let _this = this; // because socket.onmessage has its own this
                     socket.onmessage = function(event){
                     _this.coins = JSON.parse(event.data)
-                    // console.log(djangoData[0]['price'])
-                    // var joke = event.data;
-                    // document.querySelector('#jokeul').innerText = joke;
-            }
+
+                    }
                 }
             }
             createApp(CoinsApp).mount('#app')
-            //var socket = new WebSocket('ws://127.0.0.1:8000/ws/some_url/'); 
-            // socket.onmessage = function(event){
-            //     var djangoData = JSON.parse(event.data)
-            //     console.log(djangoData[0]['price'])
-            //     var joke = event.data;
-            //     document.querySelector('#jokeul').innerText = joke;
-            // }
+
         </script>
 </body>
 </html>

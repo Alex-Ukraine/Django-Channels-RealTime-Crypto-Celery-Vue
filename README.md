@@ -13,7 +13,9 @@
 > python3 manage.py runserver
 >
 4. Start celery worker
-> celery -A setari worker -l info)
+   (ccymc IS cryptocurrency-monetary currency)
+>
+> celery -A ccymc worker -l info
 > 
 5. Start celery beat
-> celery -A setari beat -l info
+> celery -A ccymc beat -l info
