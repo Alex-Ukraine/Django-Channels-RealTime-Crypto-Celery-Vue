@@ -73,7 +73,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'ccymc.wsgi.application'
-ASGI_APPLICATION = 'ccymc.asgi.application' # !!!!!!!!!!!! added
+ASGI_APPLICATION = 'ccymc.asgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
