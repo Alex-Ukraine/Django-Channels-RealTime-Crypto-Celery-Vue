@@ -18,3 +18,4 @@ celerybeat.pid
 
 # staticfiles
 staticfiles/
+ccymc/secret.py
