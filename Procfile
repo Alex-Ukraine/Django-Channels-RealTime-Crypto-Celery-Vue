@@ -3,5 +3,5 @@ web: python manage.py migrate
 web: python manage.py collectstatic --noinput
 web: unset DISABLE_COLLECTSTATIC
 # web: gunicorn ccymc.wsgi
-worker: celery -A ccymc worker -l info
+web: celery -A ccymc worker -l info
 worker: celery -A ccymc beat -l info
