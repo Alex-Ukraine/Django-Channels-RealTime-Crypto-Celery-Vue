@@ -46,16 +46,17 @@
                 
                 </tbody>
             </table>
+                    <br>
+                <br>
+                <form @submit.prevent="createCoinPair">
+                    <p><b>Enter new pair cryptocurrency-monetary currency like btc-usd:</b><br>
+                    <input type="text" placeholder="etc-rub" name="new_pair" v-model="pair.name">
+                    <input type="submit" value="Send">
+                </form>
             </div>
 
             {% endverbatim %}
-                <br>
-                <br>
-                <form action="/">
-                    <p><b>Enter new pair cryptocurrency-monetary currency like btc-usd:</b><br>
-                    <input type="text" placeholder="etc-rub" name="new_pair">
-                    <input type="submit" value="Send">
-                </form>
+
 
             </div>
         </div>
@@ -68,6 +69,9 @@
             const CoinsApp = {
                 data() {
                     return {
+                        pair: {
+                            'name': '',
+                            },
                         message: "Thanx for visit my site with live data",
                         coins: null
                     }
@@ -75,9 +79,14 @@
                 created() {
                     const socket = new WebSocket(`ws://${window.location.host}/ws/some_url/`);
                     let _this = this; // because socket.onmessage has its own this
-                    socket.onmessage = function(event){
-                    _this.coins = JSON.parse(event.data)
-
+                    socket.onmessage = function(event){_this.coins = JSON.parse(event.data)};
+                    },
+                methods: {
+                    async createCoinPair() {
+                        var response = await fetch(`http://${window.location.host}/pair_post?new_pair=${this.pair.name}`,
+                        {
+                            method: 'get',
+                        });
                     }
                 }
             }

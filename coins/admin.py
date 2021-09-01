@@ -10,5 +10,5 @@ class PairAdmin(admin.ModelAdmin):
     list_display = ('name',)
 
 
-# admin.site.register(Coin, CoinAdmin)
-# admin.site.register(Pair, PairAdmin)
+admin.site.register(Coin, CoinAdmin)
+admin.site.register(Pair, PairAdmin)

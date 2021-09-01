@@ -1,0 +1,41 @@
+version: "3.8"
+
+services:
+    django:
+        build: .
+        ports:
+            - 8000:8000
+        image: app:django
+        container_name: django
+        command: set DISABLE_COLLECTSTATIC=1
+        command: python manage.py migrate
+        command: python manage.py collectstatic --noinput
+        command: unset DISABLE_COLLECTSTATIC
+        command: python manage.py runserver 0.0.0.0:8000
+        volumes:
+            - .:/usr/src/app/
+        environment:
+            - DEBUG=1
+            - DJANGO_ALLOWED_HOSTS=localhost 127.0.0.1 [::1]
+            - CELERY_BROKER=redis://redis:6379/0
+            - CELERY_BACKEND=redis://redis:6379/0
+            - REDIS_URL=redis://redis:6379/0
+        depends_on:
+            - redis
+    celery:
+        restart: always
+        build: .
+        command: celery -A ccymc worker -l INFO
+        command: celery -A ccymc beat -l INFO
+        volumes:
+            - .:/usr/src/app
+        environment:
+            - DEBUG=1
+            - DJANGO_ALLOWED_HOSTS=localhost 127.0.0.1 [::1]
+            - CELERY_BROKER=redis://redis:6379/0
+            - REDIS_URL=redis://redis:6379/0
+        depends_on:
+            - django
+            - redis
+    redis:
+        image: "redis:alpine"
